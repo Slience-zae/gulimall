@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.atguigu.gulimall.member.feign.CouponFeignService;
+import lombok.experimental.Accessors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,32 @@ import com.atguigu.common.utils.R;
 public class MemberController {
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private CouponFeignService couponFeignService;
+
+    @Value("${member.singer}")
+    private String singer;
+    @Value("${member.fans}")
+    private String fans;
+    /**
+     * 从配置文件中读取数据
+     * @return
+     */
+    @RequestMapping("/getProperties")
+    public R getProperties(){
+        return R.ok().put("singer",singer).put("fans",fans);
+    }
+
+    @RequestMapping("/getCoupons")
+    public R getCoupons(){
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setNickname("长歌怀采薇");
+        memberEntity.setEmail("274630575@qq.com");
+
+        R coupon = couponFeignService.couponByMember();
+        return R.ok("远程调用成功").put("coupons",coupon.get("coupon")).put("member",memberEntity);
+
+    }
 
     /**
      * 列表
